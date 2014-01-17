@@ -1,0 +1,8 @@
+<% unless @admininfo && @admininfo.has_key?('site_project') -%>
+site_project=<%= @site_project %>
+<% end
+if @admininfo
+  @admininfo.keys.sort.each do |k| -%>
+<%= k %>=<%= @admininfo[k] %>
+<% end
+end -%>

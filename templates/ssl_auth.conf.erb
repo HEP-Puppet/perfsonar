@@ -1,0 +1,10 @@
+SSLRequire ( %{SSL_CIPHER} !~ m/^(EXP|NULL)/ and \
+  ( %{SSL_CLIENT_S_DN} in { \
+<% lsep = ','
+  dnlist = @authdn.uniq
+dnlist.each do |dn|
+  lsep = '' if dn == dnlist.last -%>
+  "<%= dn %>"<%= lsep %> \
+<% end -%>
+  }) \
+)
