@@ -1,5 +1,7 @@
 class perfsonar::install (
-  $packages = $perfsonar::params::install_packages,
+  $ensure = $::perfsonar::install_ensure,
 ) inherits perfsonar::params {
-  package { $packages: }
+  package { $perfsonar::params::install_packages:
+    ensure => $ensure,
+  }
 }
