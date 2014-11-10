@@ -6,6 +6,17 @@ class perfsonar::apache(
   $verifydepth = $perfsonar::params::verifydepth,
   $authdn      = [],
 ) inherits perfsonar::params {
+
+  file { "${perfsonar::params::conf_dir}/tk_redirect.conf":
+    ensure  => 'present',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    content => "RedirectMatch 301 ^/$ http://${::fqdn}/toolkit/\n",
+    notify  => Service[$::perfsonar::params::httpd_service],
+    require => Package[$::perfsonar::params::httpd_package],
+  }
+
   augeas { 'set mod_ssl params':
     incl    => "${perfsonar::params::mod_dir}/ssl.conf",
     lens    => 'Httpd.lns',
@@ -20,6 +31,8 @@ class perfsonar::apache(
       "set directive[.='SSLVerifyDepth'] 'SSLVerifyDepth'",
       "set *[.='SSLVerifyDepth']/arg ${verifydepth}",
     ],
+    notify => Service[$::perfsonar::params::httpd_service],
+    require => Package[$::perfsonar::params::httpd_package],
   }
   $have_auth = $authdn ? {
     undef   => 0,
@@ -46,14 +59,16 @@ class perfsonar::apache(
         # instead of the set commands above, the setm regex versions below should work as well (they do in augtool),
         # but for some reason they produce an error when run by puppet ('Could not evaluate: missing string argument 2 for setm', no useful debug output either)
         # the rm commands below work, but we shouldn't use them with the single set commands above because they can cause security problems
-        # e.g., if the original auth section is removed without from an unexpected directory entry without adding the include
+        # e.g., if the original auth section is removed from an unexpected directory entry without adding the include
         #"rm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')]/directive[.='AuthShadow']",
         #"rm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')]/directive[.='AuthType']",
         #"rm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')]/directive[.='AuthName']",
         #"rm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')]/directive[.='Require']",
         #"setm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')] directive[.='Include'] 'Include'",
         #"setm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')] *[.='Include']/arg '${perfsonar::params::httpd_dir}/ssl_auth.conf'",
-      ]
+      ],
+      notify => Service[$::perfsonar::params::httpd_service],
+      require => Package[$::perfsonar::params::httpd_package],
     }
     file { "${perfsonar::params::httpd_dir}/ssl_auth.conf":
       ensure  => 'present',
@@ -61,6 +76,8 @@ class perfsonar::apache(
       group   => 'root',
       mode    => '0644',
       content => template("${module_name}/ssl_auth.conf.erb"),
+      notify => Service[$::perfsonar::params::httpd_service],
+      require => Package[$::perfsonar::params::httpd_package],
     }
   } else {
     augeas { 'restore mod_ssl auth':
@@ -102,10 +119,14 @@ class perfsonar::apache(
         #"setm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')] *[.='Require']/arg[1] 'group'",
         #"setm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')] *[.='Require']/arg[2] 'wheel'",
         #"setm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')] *[.='Require']/arg[3] 'admin'",
-      ]
+      ],
+      notify => Service[$::perfsonar::params::httpd_service],
+      require => Package[$::perfsonar::params::httpd_package],
     }
     file { "${perfsonar::params::httpd_dir}/ssl_auth.conf":
       ensure => 'absent',
+      notify => Service[$::perfsonar::params::httpd_service],
+      require => Package[$::perfsonar::params::httpd_package],
     }
   }
 }
