@@ -28,6 +28,7 @@ class perfsonar::params(
     # installed as dependencies, but need them here to get the dependencies in puppet right
     'httpd',
     'esmond',
+    'postgresql-server',
 # don't want to install SystemEnvironment because it keeps overwriting my configurations during updates
 #   'perl-perfSONAR_PS-Toolkit-SystemEnvironment',
 # don't want to install gcc and mysql, it's not required
@@ -65,7 +66,7 @@ class perfsonar::params(
     'bwctl-client',
     'bwctl-server',
     'bwctl', # this installs both, the client and the server
-    'iperf3', # bwctl packages install iperf and iperf3-devel as dependency, but not iperf3 ???
+    'iperf3', # bwctl packages install iperf and iperf3-devel as dependencies, but not iperf3 ???
   ]
 
   # apache default options
