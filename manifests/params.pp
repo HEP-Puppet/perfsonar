@@ -17,6 +17,7 @@ class perfsonar::params(
   $esmond_dbname                  = 'esmond',
   $esmond_dbuser                  = 'esmond',
   $esmond_dbpass                  = 'jqIqSIiuzwI0FMUu',
+  $esmond_use_db_module           = true,
 ) {
   # package list taken from centos6-netinstall.cfg (from the perfsonar netinstall cd)
   # system packages (already installed on standard installation) and

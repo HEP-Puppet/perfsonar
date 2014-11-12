@@ -1,5 +1,5 @@
 class perfsonar::esmond (
-  $use_db_module = true,
+  $use_db_module = $::perfsonar::params::esmond_use_db_module,
   $dbname        = $::perfsonar::params::esmond_dbname,
   $dbuser        = $::perfsonar::params::esmond_dbuser,
   $dbpassword    = $::perfsonar::params::esmond_dbpass,
