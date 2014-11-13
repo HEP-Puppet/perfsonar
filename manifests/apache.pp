@@ -31,7 +31,7 @@ class perfsonar::apache(
       "set directive[.='SSLVerifyDepth'] 'SSLVerifyDepth'",
       "set *[.='SSLVerifyDepth']/arg ${verifydepth}",
     ],
-    notify => Service[$::perfsonar::params::httpd_service],
+    notify  => Service[$::perfsonar::params::httpd_service],
     require => Package[$::perfsonar::params::httpd_package],
   }
   $have_auth = $authdn ? {
@@ -67,8 +67,11 @@ class perfsonar::apache(
         #"setm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')] directive[.='Include'] 'Include'",
         #"setm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')] *[.='Include']/arg '${perfsonar::params::httpd_dir}/ssl_auth.conf'",
       ],
-      notify => Service[$::perfsonar::params::httpd_service],
-      require => Package[$::perfsonar::params::httpd_package],
+      notify  => Service[$::perfsonar::params::httpd_service],
+      require => [
+        Package[$::perfsonar::params::httpd_package],
+        File["${perfsonar::params::httpd_dir}/ssl_auth.conf"],
+      ],
     }
     file { "${perfsonar::params::httpd_dir}/ssl_auth.conf":
       ensure  => 'present',
@@ -76,10 +79,14 @@ class perfsonar::apache(
       group   => 'root',
       mode    => '0644',
       content => template("${module_name}/ssl_auth.conf.erb"),
-      notify => Service[$::perfsonar::params::httpd_service],
+      notify  => Service[$::perfsonar::params::httpd_service],
       require => Package[$::perfsonar::params::httpd_package],
     }
   } else {
+    # restore apache user auth for perfsonar admin
+    # this is problematic as it only restores the configuration file to the state that was known
+    # to the author at the time of writing
+    # it's safer to reinstall the configuration file from the rpm
     augeas { 'restore mod_ssl auth':
       incl    => "${perfsonar::params::conf_dir}/apache-toolkit_web_gui.conf",
       lens    => 'Httpd.lns',
@@ -94,8 +101,7 @@ class perfsonar::apache(
         "set Directory[arg='\"/opt/perfsonar_ps/toolkit/web/root/admin\"']/*[.='AuthName']/arg '\"Password Required\"'",
         "set Directory[arg='\"/opt/perfsonar_ps/toolkit/web/root/admin\"']/directive[.='Require'] 'Require'",
         "set Directory[arg='\"/opt/perfsonar_ps/toolkit/web/root/admin\"']/*[.='Require']/arg[1] 'group'",
-        "set Directory[arg='\"/opt/perfsonar_ps/toolkit/web/root/admin\"']/*[.='Require']/arg[2] 'wheel'",
-        "set Directory[arg='\"/opt/perfsonar_ps/toolkit/web/root/admin\"']/*[.='Require']/arg[3] 'admin'",
+        "set Directory[arg='\"/opt/perfsonar_ps/toolkit/web/root/admin\"']/*[.='Require']/arg[2] 'psadmin'",
         "rm Directory[arg='\"/opt/perfsonar_ps/toolkit/web/root/admin/logs\"']/*[.='Include']",
         "set Directory[arg='\"/opt/perfsonar_ps/toolkit/web/root/admin/logs\"']/directive[.='AuthShadow'] 'AuthShadow'",
         "set Directory[arg='\"/opt/perfsonar_ps/toolkit/web/root/admin/logs\"']/*[.='AuthShadow']/arg 'on'",
@@ -105,8 +111,7 @@ class perfsonar::apache(
         "set Directory[arg='\"/opt/perfsonar_ps/toolkit/web/root/admin/logs\"']/*[.='AuthName']/arg '\"Password Required\"'",
         "set Directory[arg='\"/opt/perfsonar_ps/toolkit/web/root/admin/logs\"']/directive[.='Require'] 'Require'",
         "set Directory[arg='\"/opt/perfsonar_ps/toolkit/web/root/admin/logs\"']/*[.='Require']/arg[1] 'group'",
-        "set Directory[arg='\"/opt/perfsonar_ps/toolkit/web/root/admin/logs\"']/*[.='Require']/arg[2] 'wheel'",
-        "set Directory[arg='\"/opt/perfsonar_ps/toolkit/web/root/admin/logs\"']/*[.='Require']/arg[3] 'admin'",
+        "set Directory[arg='\"/opt/perfsonar_ps/toolkit/web/root/admin/logs\"']/*[.='Require']/arg[2] 'psadmin'",
         # below should work, but the setm command suffers the same problem as the ones in the "if $have_auth > 0" block
         #"rm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')]/*[.='Include']",
         #"setm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')] directive[.='AuthShadow'] 'AuthShadow'",
@@ -117,15 +122,14 @@ class perfsonar::apache(
         #"setm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')] *[.='AuthName']/arg '\"Password Required\"'",
         #"setm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')] directive[.='Require'] 'Require'",
         #"setm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')] *[.='Require']/arg[1] 'group'",
-        #"setm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')] *[.='Require']/arg[2] 'wheel'",
-        #"setm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')] *[.='Require']/arg[3] 'admin'",
+        #"setm Directory[arg=~regexp('.*/web/root/admin(/.*)?\"?')] *[.='Require']/arg[2] 'psadmin'",
       ],
-      notify => Service[$::perfsonar::params::httpd_service],
+      notify  => Service[$::perfsonar::params::httpd_service],
       require => Package[$::perfsonar::params::httpd_package],
     }
     file { "${perfsonar::params::httpd_dir}/ssl_auth.conf":
-      ensure => 'absent',
-      notify => Service[$::perfsonar::params::httpd_service],
+      ensure  => 'absent',
+      notify  => Service[$::perfsonar::params::httpd_service],
       require => Package[$::perfsonar::params::httpd_package],
     }
   }

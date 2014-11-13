@@ -63,7 +63,6 @@ class perfsonar::esmond (
     require   => [
       File['/usr/local/sbin/puppet_perfsonar_configure_esmond'],
       File['/opt/esmond/esmond.conf'],
-      Package['postgresql-server'],
     ],
   }
 }

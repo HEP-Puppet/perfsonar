@@ -7,5 +7,6 @@ class perfsonar::bwctl::service(
     enable     => $enable,
     hasstatus  => false,
     hasrestart => true,
+    require    => Package['bwctl-server'],
   }
 }

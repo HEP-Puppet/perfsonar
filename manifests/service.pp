@@ -30,22 +30,21 @@ class perfsonar::service(
     enable     => $config_daemon_enable,
     hasstatus  => false,
     hasrestart => true,
+    require    => Package['perl-perfSONAR_PS-Toolkit'],
   }
   # start (no service, only runs at boot)
   service { 'configure_nic_parameters':
     enable     => $config_nic_params,
     hasstatus  => false,
     hasrestart => false,
+    require    => Package['perl-perfSONAR_PS-Toolkit'],
   }
-  # start stop(nil) restart(start)
-# not present in 3.4
-#  service { 'dicover_external_address':
-#  }
   # start stop(nil) restart (no service, only runs at boot)
   service { 'generate_motd':
     enable     => $generate_motd_enable,
     hasstatus  => false,
     hasrestart => true,
+    require    => Package['perl-perfSONAR_PS-Toolkit'],
   }
   # start stop status restart condrestart|try-restart(stop start) force-reload|reload(nil)
   service { 'htcacheclean':
@@ -53,6 +52,7 @@ class perfsonar::service(
     enable     => $htcacheclean_enable,
     hasstatus  => true,
     hasrestart => true,
+    require    => Package[$::perfsonar::params::httpd_package],
   }
   service { $::perfsonar::params::httpd_service:
     ensure     => $httpd_ensure,
@@ -67,6 +67,7 @@ class perfsonar::service(
     enable     => $ls_cache_daemon_enable,
     hasstatus  => false,
     hasrestart => true,
+    require    => Package['perl-perfSONAR_PS-LSCacheDaemon'],
   }
   # start stop restart
   service { 'ls_registration_daemon':
@@ -74,6 +75,7 @@ class perfsonar::service(
     enable     => $ls_reg_daemon_enable,
     hasstatus  => false,
     hasrestart => true,
+    require    => Package['perl-perfSONAR_PS-LSRegistrationDaemon']
   }
   # do we need it ???
   # start stop status restart condrestart|try-restart(restart) force-reload|reload
@@ -82,6 +84,7 @@ class perfsonar::service(
     enable     => $multipathd_enable,
     hasstatus  => true,
     hasrestart => true,
+    require    => Package['device-mapper-multipath'],
   }
   # start stop status restart|reload
   service { 'ndt':
@@ -89,6 +92,7 @@ class perfsonar::service(
     enable     => $ndt_enable,
     hasstatus  => true,
     hasrestart => true,
+    require    => Package['ndt-server'],
   }
 # doesn't seem to be used any more
 # file { '/opt/perfsonar_ps/toolkit/etc/enabled_services':
@@ -104,6 +108,7 @@ class perfsonar::service(
     enable     => $npad_enable,
     hasstatus  => false,
     hasrestart => true,
+    require    => Package['npad'],
   }
   # start stop status restart condrestart|try-restart(restart) force-reload|reload
   service { 'nscd':
@@ -111,6 +116,7 @@ class perfsonar::service(
     enable     => $nscd_enable,
     hasstatus  => true,
     hasrestart => true,
+    require    => Package['nscd'],
   }
   # do we need it ???
   # start stop status restart|reload|force-reload condrestart|try-restart
@@ -123,11 +129,13 @@ class perfsonar::service(
     hasstatus  => false,
     hasrestart => true,
     pattern    => 'SimpleLSBootStrapClientDaemon.pl',
+    require    => Package['perl-perfSONAR_PS-SimpleLS-BootStrap-client'],
   }
   service { 'cassandra':
     ensure     => $cassandra_ensure,
     enable     => $cassandra_enable,
     hasstatus  => true,
     hasrestart => true,
+    require    => Package['cassandra20'],
   }
 }

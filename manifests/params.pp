@@ -28,7 +28,13 @@ class perfsonar::params(
     # installed as dependencies, but need them here to get the dependencies in puppet right
     'httpd',
     'esmond',
-    'postgresql-server',
+    'perl-perfSONAR_PS-LSCacheDaemon',
+    'perl-perfSONAR_PS-LSRegistrationDaemon',
+    'perl-perfSONAR_PS-SimpleLS-BootStrap-client',
+    'ndt-server',
+    'npad',
+    'nscd',
+    'cassandra20',
 # don't want to install SystemEnvironment because it keeps overwriting my configurations during updates
 #   'perl-perfSONAR_PS-Toolkit-SystemEnvironment',
 # don't want to install gcc and mysql, it's not required
@@ -37,7 +43,7 @@ class perfsonar::params(
 # is this for the web100 kernel only ??
 #    'kmod-sk98lin',
 # are the ones below still required ?
-#    'device-mapper-multipath',
+     'device-mapper-multipath',
 #    'php-gd',
 #    'php-xml',
 #    'syslinux',
@@ -50,7 +56,7 @@ class perfsonar::params(
 
   $regular_testing_packages = [
     'perl-perfSONAR_PS-RegularTesting',
-    'perl-DBD-MySQL', # required by regular testing ? I've seen related error message in the logs when it's not installed
+    #'perl-DBD-MySQL', # required by regular testing ? I've seen related error message in the logs when it's not installed
   ]
   $mesh_config_packages = [
     'perl-perfSONAR_PS-MeshConfig-Agent',
