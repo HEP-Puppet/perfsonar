@@ -8,4 +8,6 @@ class perfsonar {
   include 'perfsonar::mesh_config'
   include 'perfsonar::owamp'
   include 'perfsonar::bwctl'
+  include 'perfsonar::ls_registration_daemon'
+  include 'perfsonar::ls_cache_daemon'
 }

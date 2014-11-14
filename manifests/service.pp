@@ -7,10 +7,6 @@ class perfsonar::service(
   $htcacheclean_enable    = $::perfsonar::params::htcacheclean_enable,
   $httpd_ensure           = $::perfsonar::params::httpd_ensure,
   $httpd_enable           = $::perfsonar::params::httpd_enable,
-  $ls_cache_daemon_ensure = $::perfsonar::params::ls_cache_daemon_ensure,
-  $ls_cache_daemon_enable = $::perfsonar::params::ls_cache_daemon_enable,
-  $ls_reg_daemon_ensure   = $::perfsonar::params::ls_reg_daemon_ensure,
-  $ls_reg_daemon_enable   = $::perfsonar::params::ls_reg_daemon_enable,
   $multipathd_ensure      = $::perfsonar::params::multipathd_ensure,
   $multipathd_enable      = $::perfsonar::params::multipathd_enable,
   $ndt_ensure             = $::perfsonar::params::ndt_ensure,
@@ -60,22 +56,6 @@ class perfsonar::service(
     hasstatus  => $::perfsonar::params::httpd_hasstatus,
     hasrestart => $::perfsonar::params::httpd_hasrestart,
     require    => Package[$::perfsonar::params::httpd_package],
-  }
-  # start stop restart
-  service { 'ls_cache_daemon':
-    ensure     => $ls_cache_daemon_ensure,
-    enable     => $ls_cache_daemon_enable,
-    hasstatus  => false,
-    hasrestart => true,
-    require    => Package['perl-perfSONAR_PS-LSCacheDaemon'],
-  }
-  # start stop restart
-  service { 'ls_registration_daemon':
-    ensure     => $ls_reg_daemon_ensure,
-    enable     => $ls_reg_daemon_enable,
-    hasstatus  => false,
-    hasrestart => true,
-    require    => Package['perl-perfSONAR_PS-LSRegistrationDaemon']
   }
   # do we need it ???
   # start stop status restart condrestart|try-restart(restart) force-reload|reload

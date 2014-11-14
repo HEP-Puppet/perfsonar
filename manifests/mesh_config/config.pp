@@ -8,7 +8,7 @@ class perfsonar::mesh_config::config(
     group   => 'perfsonar',
     mode    => '0644',
     content => template("${module_name}/agent_configuration.conf.erb"),
-    require => Package['perl-perfSONAR_PS-MeshConfig-Agent']
+    require => Package['perl-perfSONAR_PS-MeshConfig-Agent'],
   }
   # needs notty in sudoers
   exec { 'generate mesh configuration':
