@@ -1,22 +1,46 @@
 class perfsonar::params(
-  $regular_testing_install_ensure = 'present',
-  $regular_testing_ensure         = 'stopped',
-  $regular_testing_enable         = false,
-  $regular_testing_loglvl         = 'INFO',
-  $regular_testing_logger         = 'Log::Dispatch::FileRotate',
-  $regular_testing_logfile        = '/var/log/perfsonar/regular_testing.log',
-  $regular_testing_snotify        = true,
-  $mesh_config_install_ensure     = 'present',
-  $mesh_config_agent              = {},
-  $owamp_install_ensure           = 'present',
-  $owamp_ensure                   = 'stopped',
-  $owamp_enable                   = false,
-  $bwctl_install_ensure           = 'present',
-  $bwctl_ensure                   = 'stopped',
-  $bwctl_enable                   = false,
-  $esmond_dbname                  = 'esmond',
-  $esmond_dbuser                  = 'esmond',
-  $esmond_dbpass                  = 'jqIqSIiuzwI0FMUu',
+  $regular_testing_install_ensure        = 'present',
+  $regular_testing_ensure                = 'stopped',
+  $regular_testing_enable                = false,
+  $regular_testing_loglvl                = 'INFO',
+  $regular_testing_logger                = 'Log::Dispatch::FileRotate',
+  $regular_testing_logfile               = '/var/log/perfsonar/regular_testing.log',
+  $regular_testing_snotify               = true,
+  $regular_testing_lr_order              = '02',
+  $regular_testing_lr_options            = [ 'weekly', 'compress', 'rotate 50', 'missingok', 'notifempty',
+    'postrotate', '  /sbin/service regular_testing restart > /dev/null 2>/dev/null || true', 'endscript' ],
+  $mesh_config_install_ensure            = 'present',
+  $mesh_config_agent                     = {},
+  $owamp_install_ensure                  = 'present',
+  $owamp_ensure                          = 'stopped',
+  $owamp_enable                          = false,
+  $bwctl_install_ensure                  = 'present',
+  $bwctl_ensure                          = 'stopped',
+  $bwctl_enable                          = false,
+  $esmond_dbname                         = 'esmond',
+  $esmond_dbuser                         = 'esmond',
+  $esmond_dbpass                         = 'jqIqSIiuzwI0FMUu',
+  $esmond_use_db_module                  = true,
+  $ls_registration_daemon_install_ensure = 'present',
+  $ls_registration_daemon_ensure         = 'running',
+  $ls_registration_daemon_enable         = true,
+  $ls_registration_daemon_loglvl         = 'INFO',
+  $ls_registration_daemon_logger         = 'Log::Dispatch::FileRotate',
+  $ls_registration_daemon_logfile        = '/var/log/perfsonar/ls_registration_daemon.log',
+  $ls_registration_daemon_snotify        = true,
+  $ls_registration_daemon_lr_order       = '03',
+  $ls_registration_daemon_lr_options     = [ 'weekly', 'compress', 'rotate 50', 'missingok', 'notifempty',
+    'postrotate', '  /sbin/service ls_registration_daemon restart > /dev/null 2>/dev/null || true', 'endscript' ],
+  $ls_cache_daemon_install_ensure        = 'present',
+  $ls_cache_daemon_ensure                = 'running',
+  $ls_cache_daemon_enable                = true,
+  $ls_cache_daemon_loglvl                = 'INFO',
+  $ls_cache_daemon_logger                = 'Log::Dispatch::FileRotate',
+  $ls_cache_daemon_logfile               = '/var/log/perfsonar/ls_cache_daemon.log',
+  $ls_cache_daemon_snotify               = true,
+  $ls_cache_daemon_lr_order              = '04',
+  $ls_cache_daemon_lr_options            = [ 'weekly', 'compress', 'rotate 50', 'missingok', 'notifempty',
+    'postrotate', '  /sbin/service ls_cache_daemon restart > /dev/null 2>/dev/null || true', 'endscript' ],
 ) {
   # package list taken from centos6-netinstall.cfg (from the perfsonar netinstall cd)
   # system packages (already installed on standard installation) and
@@ -27,6 +51,11 @@ class perfsonar::params(
     # installed as dependencies, but need them here to get the dependencies in puppet right
     'httpd',
     'esmond',
+    'perl-perfSONAR_PS-SimpleLS-BootStrap-client',
+    'ndt-server',
+    'npad',
+    'nscd',
+    'cassandra20',
 # don't want to install SystemEnvironment because it keeps overwriting my configurations during updates
 #   'perl-perfSONAR_PS-Toolkit-SystemEnvironment',
 # don't want to install gcc and mysql, it's not required
@@ -35,7 +64,7 @@ class perfsonar::params(
 # is this for the web100 kernel only ??
 #    'kmod-sk98lin',
 # are the ones below still required ?
-#    'device-mapper-multipath',
+     'device-mapper-multipath',
 #    'php-gd',
 #    'php-xml',
 #    'syslinux',
@@ -48,7 +77,7 @@ class perfsonar::params(
 
   $regular_testing_packages = [
     'perl-perfSONAR_PS-RegularTesting',
-    'perl-DBD-MySQL', # required by regular testing ? I've seen related error message in the logs when it's not installed
+    #'perl-DBD-MySQL', # required by regular testing ? I've seen related error message in the logs when it's not installed
   ]
   $mesh_config_packages = [
     'perl-perfSONAR_PS-MeshConfig-Agent',
@@ -64,8 +93,17 @@ class perfsonar::params(
     'bwctl-client',
     'bwctl-server',
     'bwctl', # this installs both, the client and the server
-    'iperf3', # bwctl packages install iperf and iperf3-devel as dependency, but not iperf3 ???
+    'iperf3', # bwctl packages install iperf and iperf3-devel as dependencies, but not iperf3 ???
   ]
+  $ls_registration_daemon_packages = [
+    'perl-perfSONAR_PS-LSRegistrationDaemon',
+  ]
+  $ls_cache_daemon_packages = [
+    'perl-perfSONAR_PS-LSCacheDaemon',
+  ]
+  # logrotate
+  $logrotate_cf = '/etc/logrotate.d/perfsonar'
+  $lr_header_order = '01'
 
   # apache default options
   $hostcert = '/etc/grid-security/hostcert.pem'
@@ -83,10 +121,6 @@ class perfsonar::params(
   $htcacheclean_enable = false
   $httpd_ensure = 'running'
   $httpd_enable = true
-  $ls_cache_daemon_ensure = 'running'
-  $ls_cache_daemon_enable = true
-  $ls_reg_daemon_ensure = 'running'
-  $ls_reg_daemon_enable = true
   $multipathd_ensure = 'stopped'
   $multipathd_enable = false
   $ndt_ensure = 'stopped'

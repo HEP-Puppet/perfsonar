@@ -1,5 +1,5 @@
 class perfsonar::esmond (
-  $use_db_module = true,
+  $use_db_module = $::perfsonar::params::esmond_use_db_module,
   $dbname        = $::perfsonar::params::esmond_dbname,
   $dbuser        = $::perfsonar::params::esmond_dbuser,
   $dbpassword    = $::perfsonar::params::esmond_dbpass,
@@ -26,6 +26,18 @@ class perfsonar::esmond (
       before      => Exec['run esmond configuration script'],
     }
   }
+  else
+  {
+    # the sudo rule is only required if postgresql is configured by the script
+    file { '/etc/sudoers.d/perfsonar_esmond':
+      ensure  => 'file',
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0440',
+      content => "Defaults!/usr/bin/psql !requiretty\n",
+      before  => Exec['run esmond configuration script'],
+    }
+  }
 
   file { '/opt/esmond/esmond.conf':
     ensure  => 'file',
@@ -46,8 +58,11 @@ class perfsonar::esmond (
   }
   exec { 'run esmond configuration script':
     command   => '/usr/local/sbin/puppet_perfsonar_configure_esmond',
-    logoutput => 'on_failure',
+    logoutput => true, #'on_failure',
     creates   => '/var/lib/esmond/.configured.puppet',
-    require   => File['/usr/local/sbin/puppet_perfsonar_configure_esmond'],
+    require   => [
+      File['/usr/local/sbin/puppet_perfsonar_configure_esmond'],
+      File['/opt/esmond/esmond.conf'],
+    ],
   }
 }

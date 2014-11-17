@@ -11,7 +11,7 @@ class perfsonar::regular_testing::config(
     group   => 'root',
     mode    => '0750',
     content => template("${module_name}/configure_regular_testing.erb"),
-    require => Package['perl-perfSONAR_PS-RegularTesting']
+    require => Package['perl-perfSONAR_PS-RegularTesting'],
   }
   exec { 'run regular testing configuration script':
     command   => '/usr/local/sbin/puppet_perfsonar_configure_regular_testing',
@@ -20,15 +20,15 @@ class perfsonar::regular_testing::config(
     require   => File['/usr/local/sbin/puppet_perfsonar_configure_regular_testing'],
   }
   $tn = $snotify ? {
-      false   => undef,
-      default => Service['regular_testing'],
-    }
+    false   => undef,
+    default => Service['regular_testing'],
+  }
   file { '/opt/perfsonar_ps/regular_testing/etc/regular_testing-logger.conf':
     ensure  => 'file',
     owner   => 'perfsonar',
     group   => 'perfsonar',
     mode    => '0644',
-    content => template("${module_name}/regular_testing-logger.conf.erb"),
+    content => template("${module_name}/log4perl-logger.conf.erb"),
     require => Exec['run regular testing configuration script'],
     notify  => $tn,
   }

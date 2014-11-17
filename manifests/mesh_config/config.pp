@@ -8,7 +8,7 @@ class perfsonar::mesh_config::config(
     group   => 'perfsonar',
     mode    => '0644',
     content => template("${module_name}/agent_configuration.conf.erb"),
-    require => Package['perl-perfSONAR_PS-MeshConfig-Agent']
+    require => Package['perl-perfSONAR_PS-MeshConfig-Agent'],
   }
   # needs notty in sudoers
   exec { 'generate mesh configuration':
@@ -17,12 +17,12 @@ class perfsonar::mesh_config::config(
     subscribe   => File['/opt/perfsonar_ps/mesh_config/etc/agent_configuration.conf'],
     require     => [
       Exec['run regular testing configuration script'],
-      File['/etc/sudoers.d/perfsonar'],
+      File['/etc/sudoers.d/perfsonar_mesh_config'],
     ],
     refreshonly => true,
     notify      => Service['regular_testing'],
   }
-  file { '/etc/sudoers.d/perfsonar':
+  file { '/etc/sudoers.d/perfsonar_mesh_config':
     ensure => 'file',
     owner  => 'root',
     group  => 'root',
