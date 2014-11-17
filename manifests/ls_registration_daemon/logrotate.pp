@@ -10,5 +10,6 @@ class perfsonar::ls_registration_daemon::logrotate(
     target  => $::perfsonar::params::logrotate_cf,
     content => template("${module_name}/logrotate_fragment.erb"),
     order   => $order,
+    require => Class['perfsonar::ls_registration_daemon::config']
   }
 }
