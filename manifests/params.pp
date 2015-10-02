@@ -41,6 +41,9 @@ class perfsonar::params(
   $ls_cache_daemon_lr_order              = '04',
   $ls_cache_daemon_lr_options            = [ 'weekly', 'compress', 'rotate 50', 'missingok', 'notifempty',
     'postrotate', '  /sbin/service ls_cache_daemon restart > /dev/null 2>/dev/null || true', 'endscript' ],
+  $patchdir                              = '/usr/share/perfsonar_patches',
+  $patchpackage                          = 'patch',
+  $patchpackage_ensure                   = 'present',
 ) {
   # package list taken from centos6-netinstall.cfg (from the perfsonar netinstall cd)
   # system packages (already installed on standard installation) and
@@ -58,6 +61,16 @@ class perfsonar::params(
     'cassandra20',
 # don't want to install SystemEnvironment because it keeps overwriting my configurations during updates
 #   'perl-perfSONAR_PS-Toolkit-SystemEnvironment',
+#     packages that are installed by perl-perfSONAR_PS-Toolkit-SystemEnvironment:
+#       perl-perfSONAR_PS-Toolkit-ntp
+#         configures ntp server (replaces existing config)
+#       perl-perfSONAR_PS-Toolkit-security
+#         configures iptables
+#       perl-perfSONAR_PS-Toolkit-service-watcher
+#         monitors status of services: mysql, httpd, cassandra, owamp, bwctl, npad, ndt, regular_testing, ls_registration_daemon, ls_cache_daemon, config_daemon
+#         according to /opt/perfsonar_ps/toolkit/lib/perfSONAR_PS/NPToolkit/Services/*.pm, the following services need regular restarts: OWAMP, RegularTesting
+#       perl-perfSONAR_PS-Toolkit-sysctl
+#         configures /etc/sysctl.conf (appends values)
 # don't want to install gcc and mysql, it's not required
 #   'gcc',
 #   'mysql-devel',
