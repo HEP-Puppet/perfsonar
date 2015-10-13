@@ -5,23 +5,45 @@ class perfsonar::apache(
   $clientauth  = $perfsonar::params::clientauth,
   $verifydepth = $perfsonar::params::verifydepth,
   $authdn      = [],
+  $sslprotocol = 'all -SSLv2 -SSLv3',
+  $sslciphers  = 'HIGH:MEDIUM:!aNULL:!MD5:!RC4',
 ) inherits perfsonar::params {
 
+  # /opt/perfsonar_ps/toolkit/scripts/system_environment/disable_http_trace
+  # disables trace requests
+  file { "${perfsonar::params::conf_dir}/disable_trace.conf":
+    ensure  => 'present',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    content => "TraceEnable Off\n",
+    notify  => Service[$::perfsonar::params::httpd_service],
+    require => Package[$::perfsonar::params::httpd_package],
+  }
   file { "${perfsonar::params::conf_dir}/tk_redirect.conf":
     ensure  => 'present',
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    content => "RedirectMatch 301 ^/$ http://${::fqdn}/toolkit/\n",
+    content => "RedirectMatch 301 ^/$ /toolkit/\n",
     notify  => Service[$::perfsonar::params::httpd_service],
     require => Package[$::perfsonar::params::httpd_package],
   }
+  # remove the http only redirect from perfsonar apache configuration (introduced in 3.5)
+  # the global rule in tk_redirect covers both, http and https
+  $remove_redirect = versioncmp($perfsonar_version, '3.5') ? {
+    /^[01]$/ => "rm VirtualHost/directive[.='RedirectMatch' and arg='^/$']",
+    default  => [],
+  }
 
+  # the augeas lens uses an array for the ssl protocol values
+  # which means we need a separate set commmand for each value
+  $sslprotocol_changes = split(inline_template('<%= cmds = []; i=1; @sslprotocol.split(" ").each { |x| cmds.push("set directive[.=\"SSLProtocol\"]/arg[#{i}] \"#{x}\""); i+=1; }; cmds.join("\n") %>'), "\n")
   augeas { 'set mod_ssl params':
     incl    => "${perfsonar::params::mod_dir}/ssl.conf",
     lens    => 'Httpd.lns',
     context => "/files/${perfsonar::params::mod_dir}/ssl.conf/VirtualHost",
-    changes => [
+    changes => concat([
       "set *[.='SSLCertificateFile']/arg ${hostcert}",
       "set *[.='SSLCertificateKeyFile']/arg ${hostkey}",
       "set directive[.='SSLCACertificatePath'] 'SSLCACertificatePath'", # create node if not exist
@@ -38,16 +60,25 @@ class perfsonar::apache(
       "set *[.='RewriteEngine']/arg 'on'",
       "set directive[.='RewriteOptions'] 'RewriteOptions'",
       "set *[.='RewriteOptions']/arg 'Inherit'",
-    ],
+      # update of ssl cipher options
+      "set directive[.='SSLHonorCipherOrder'] 'SSLHonorCipherOrder'",
+      "set directive[.='SSLHonorCipherOrder']/arg 'on'",
+      "set directive[.='SSLCipherSuite'] 'SSLCipherSuite'",
+      "set directive[.='SSLCipherSuite']/arg '${sslciphers}'",
+      # remove ssl protocol value, they will be set again by the merged sslprotocol_changes rules
+      # this is required to ensure only the passed values are present in the configuration
+      "rm directive[.='SSLProtocol']/arg",
+    ], $sslprotocol_changes),
     notify  => Service[$::perfsonar::params::httpd_service],
     require => Package[$::perfsonar::params::httpd_package],
   }
+
   $have_auth = $authdn ? {
     undef   => 0,
     default => size($authdn),
   }
   if $have_auth > 0 {
-    # new web gui
+    # additions for new web gui
     $changes35 = versioncmp($perfsonar_version, '3.5') ? {
       /^[01]$/ => [
         "rm Location[arg='\"/toolkit/auth\"']/directive[.='AuthShadow']",
@@ -67,28 +98,12 @@ class perfsonar::apache(
       "setm Directory[arg=~regexp('\".*/web(-ng)?/root/admin(/.*)?\"?')] directive[.='Include'] 'Include'",
       "setm Directory[arg=~regexp('\".*/web(-ng)?/root/admin(/.*)?\"?')] *[.='Include']/arg '${perfsonar::params::httpd_dir}/ssl_auth.conf'",
     ]
-    $auges_changes = concat($changes34, $changes35)
-    augeas { 'set mod_ssl auth':
-      incl    => "${perfsonar::params::conf_dir}/apache-toolkit_web_gui.conf",
-      lens    => 'Httpd.lns',
-      context => "/files/${perfsonar::params::conf_dir}/apache-toolkit_web_gui.conf",
-      changes => $auges_changes,
-      notify  => Service[$::perfsonar::params::httpd_service],
-      require => [
-        Package[$::perfsonar::params::httpd_package],
-        File["${perfsonar::params::httpd_dir}/ssl_auth.conf"],
-      ],
-    }
-    file { "${perfsonar::params::httpd_dir}/ssl_auth.conf":
-      ensure  => 'present',
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0644',
-      content => template("${module_name}/ssl_auth.conf.erb"),
-      notify  => Service[$::perfsonar::params::httpd_service],
-      require => Package[$::perfsonar::params::httpd_package],
-    }
+    $ssl_auth_ensure = 'present'
   } else {
+    # restore apache user auth for perfsonar admin
+    # this is problematic as it only restores the configuration file to the state that was known
+    # to the author at the time of writing
+    # it's safer to reinstall the configuration file from the rpm
     $changes35 = versioncmp($perfsonar_version, '3.5') ? {
       /^[01]$/ => [
         "rm Location[arg='\"/toolkit/auth\"']/*[.='Include']",
@@ -117,23 +132,27 @@ class perfsonar::apache(
       "setm Directory[arg=~regexp('\".*/web(-ng)?/root/admin(/.*)?\"?')] *[.='Require']/arg[1] 'group'",
       "setm Directory[arg=~regexp('\".*/web(-ng)?/root/admin(/.*)?\"?')] *[.='Require']/arg[2] 'psadmin'",
     ]
-    $auges_changes = concat($changes34, $changes35)
-    # restore apache user auth for perfsonar admin
-    # this is problematic as it only restores the configuration file to the state that was known
-    # to the author at the time of writing
-    # it's safer to reinstall the configuration file from the rpm
-    augeas { 'restore mod_ssl auth':
-      incl    => "${perfsonar::params::conf_dir}/apache-toolkit_web_gui.conf",
-      lens    => 'Httpd.lns',
-      context => "/files/${perfsonar::params::conf_dir}/apache-toolkit_web_gui.conf",
-      changes => $auges_changes,
-      notify  => Service[$::perfsonar::params::httpd_service],
-      require => Package[$::perfsonar::params::httpd_package],
-    }
-    file { "${perfsonar::params::httpd_dir}/ssl_auth.conf":
-      ensure  => 'absent',
-      notify  => Service[$::perfsonar::params::httpd_service],
-      require => Package[$::perfsonar::params::httpd_package],
-    }
+    $ssl_auth_ensure = 'absent'
+  }
+  file { "${perfsonar::params::httpd_dir}/ssl_auth.conf":
+    ensure  => $ssl_auth_ensure,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    content => template("${module_name}/ssl_auth.conf.erb"),
+    notify  => Service[$::perfsonar::params::httpd_service],
+    require => Package[$::perfsonar::params::httpd_package],
+  }
+  $auges_changes = concat($changes34, $changes35, $remove_redirect)
+  augeas { 'update perfsonar apache config':
+    incl    => "${perfsonar::params::conf_dir}/apache-toolkit_web_gui.conf",
+    lens    => 'Httpd.lns',
+    context => "/files/${perfsonar::params::conf_dir}/apache-toolkit_web_gui.conf",
+    changes => $auges_changes,
+    notify  => Service[$::perfsonar::params::httpd_service],
+    require => [
+      Package[$::perfsonar::params::httpd_package],
+      File["${perfsonar::params::httpd_dir}/ssl_auth.conf"],
+    ],
   }
 }
