@@ -31,6 +31,8 @@ class perfsonar::apache(
   }
   # remove the http only redirect from perfsonar apache configuration (introduced in 3.5)
   # the global rule in tk_redirect covers both, http and https
+  # all version dependent options require puppet to be installed (the fact queries which version is installed)
+  # they are not applied during the initial run which installs perfsonar, a second run is needed to apply those changes
   $remove_redirect = versioncmp($perfsonar_version, '3.5') ? {
     /^[01]$/ => "rm VirtualHost/directive[.='RedirectMatch' and arg='^/$']",
     default  => [],
@@ -70,7 +72,9 @@ class perfsonar::apache(
       "rm directive[.='SSLProtocol']/arg",
     ], $sslprotocol_changes),
     notify  => Service[$::perfsonar::params::httpd_service],
-    require => Package[$::perfsonar::params::httpd_package],
+    # need to make sure mod_ssl is installed, it's not a dependency of apache,
+    # so can't depend on apache here (but apache depends on mod_ssl, obviously)
+    require => Package[$::perfsonar::params::modssl_package],
   }
 
   $have_auth = $authdn ? {

@@ -6,11 +6,10 @@ class perfsonar::patches(
   if $patchpackage {
     package { $patchpackage:
       ensure => $patchpackage_ensure,
-      # adding dependency here and not in the exec because it avoids possible
-      # dependency failures if $package is not set and this block is
-      # not executed
-      before => File[$patchdir],
     }
+    $patchpackage_require = Package[$patchpackage]
+  } else {
+    $patchpackage_require = undef
   }
   case $perfsonar_version {
     /^3\.5\.0/: {
@@ -38,10 +37,14 @@ class perfsonar::patches(
   }
   if size(keys($patches)) > 0 {
     file { $patchdir:
-      ensure => 'directory',
-      owner  => 'root',
-      group  => 'root',
-      mode   => '0750',
+      ensure  => 'directory',
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0750',
+      # adding dependency here and not in the exec because it avoids possible
+      # dependency failures if $package is not set and this block is
+      # not executed
+      require => $patchpackage_require,
     }
     create_resources('perfsonar_apply_patch', $patches)
   }
