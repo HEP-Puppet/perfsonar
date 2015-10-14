@@ -21,13 +21,13 @@ class perfsonar::patches(
          # file itself is part of perl-perfSONAR_PS-Toolkit-Library
          # which is installed as a dependency of perl-perfSONAR_PS-Toolkit
          # therefore we use the latter as a dependency for the patch
-          deps      => [Package['perl-perfSONAR_PS-Toolkit']],
+          deps      => Package['perl-perfSONAR_PS-Toolkit'],
           checkfile => 'Auth.pm', # relative to path
         },
         '02_perfsonar_webservice_pageauth.patch.3.5.0' => {
           path      => '/opt/perfsonar_ps/toolkit/web-ng/root',
           strip     => 1,
-          deps      => [Package['perl-perfSONAR_PS-Toolkit']],
+          deps      => Package['perl-perfSONAR_PS-Toolkit'],
           checkfile => 'index.cgi', # relative to path
         }
       }
@@ -53,13 +53,15 @@ define perfsonar_apply_patch($path, $strip = 0, $deps = [], $checkfile) {
     ensure  => 'file',
     owner   => 'root',
     group   => 'root',
-    mode     => '0640',
+    mode    => '0640',
     source  => "puppet:///modules/${module_name}/patches/${name}",
     require => File[$perfsonar::patches::patchdir],
+    before  => Exec["exec test patch ${name}"],
   }
   exec { "exec test patch ${name}":
     command => "/usr/bin/patch -d ${path} -N -t -p${strip} -i ${patch}",
-    require => concat($deps, File[$patch]),
+    require => $deps,
     unless  => "/bin/grep -q '^# puppet perfsonar::patches applied patch: ${name}$' '${path}/${checkfile}'",
+    notify  => Service[$::perfsonar::params::httpd_service],
   }
 }

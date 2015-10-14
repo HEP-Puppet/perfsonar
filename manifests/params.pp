@@ -41,7 +41,7 @@ class perfsonar::params(
   $ls_cache_daemon_lr_order              = '04',
   $ls_cache_daemon_lr_options            = [ 'weekly', 'compress', 'rotate 50', 'missingok', 'notifempty',
     'postrotate', '  /sbin/service ls_cache_daemon restart > /dev/null 2>/dev/null || true', 'endscript' ],
-  $patchdir                              = '/usr/share/perfsonar_patches',
+  $patchdir                              = '/usr/local/share/perfsonar_patches',
   $patchpackage                          = 'patch',
   $patchpackage_ensure                   = 'present',
 ) {
