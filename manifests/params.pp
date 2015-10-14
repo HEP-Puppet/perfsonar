@@ -41,7 +41,26 @@ class perfsonar::params(
   $ls_cache_daemon_lr_order              = '04',
   $ls_cache_daemon_lr_options            = [ 'weekly', 'compress', 'rotate 50', 'missingok', 'notifempty',
     'postrotate', '  /sbin/service ls_cache_daemon restart > /dev/null 2>/dev/null || true', 'endscript' ],
+  $patchdir                              = '/usr/local/share/perfsonar_patches',
+  $patchpackage                          = 'patch',
+  $patchpackage_ensure                   = 'present',
 ) {
+  # os specifics
+  case $::osfamily {
+    'RedHat': {
+      $modssl_package   = 'mod_ssl'
+      $httpd_package    = 'httpd'
+      $httpd_service    = 'httpd'
+      $httpd_hasrestart = true
+      $httpd_hasstatus  = true
+      $httpd_dir        = '/etc/httpd'
+      $mod_dir          = "${httpd_dir}/conf.d"
+      $conf_dir         = "${httpd_dir}/conf.d"
+    }
+    default: {
+      fail("osfamily ${::osfamily} is not supported")
+    }
+  }
   # package list taken from centos6-netinstall.cfg (from the perfsonar netinstall cd)
   # system packages (already installed on standard installation) and
   # packages that are dependencies of packages in this list have been removed from the original list
@@ -49,15 +68,26 @@ class perfsonar::params(
   $install_packages = [
     'perl-perfSONAR_PS-Toolkit',
     # installed as dependencies, but need them here to get the dependencies in puppet right
-    'httpd',
+    $httpd_package,
     'esmond',
     'perl-perfSONAR_PS-SimpleLS-BootStrap-client',
     'ndt-server',
     'npad',
     'nscd',
     'cassandra20',
+    $modssl_package,
 # don't want to install SystemEnvironment because it keeps overwriting my configurations during updates
 #   'perl-perfSONAR_PS-Toolkit-SystemEnvironment',
+#     packages that are installed by perl-perfSONAR_PS-Toolkit-SystemEnvironment:
+#       perl-perfSONAR_PS-Toolkit-ntp
+#         configures ntp server (replaces existing config)
+#       perl-perfSONAR_PS-Toolkit-security
+#         configures iptables
+#       perl-perfSONAR_PS-Toolkit-service-watcher
+#         monitors status of services: mysql, httpd, cassandra, owamp, bwctl, npad, ndt, regular_testing, ls_registration_daemon, ls_cache_daemon, config_daemon
+#         according to /opt/perfsonar_ps/toolkit/lib/perfSONAR_PS/NPToolkit/Services/*.pm, the following services need regular restarts: OWAMP, RegularTesting
+#       perl-perfSONAR_PS-Toolkit-sysctl
+#         configures /etc/sysctl.conf (appends values)
 # don't want to install gcc and mysql, it's not required
 #   'gcc',
 #   'mysql-devel',
@@ -141,20 +171,5 @@ class perfsonar::params(
     use_toolkit            => 1,
     send_error_emails      => 1,
     skip_redundant_tests   => 1,
-  }
-  # paths
-  case $::osfamily {
-    'RedHat': {
-      $httpd_package    = 'httpd'
-      $httpd_service    = 'httpd'
-      $httpd_hasrestart = true
-      $httpd_hasstatus  = true
-      $httpd_dir        = '/etc/httpd'
-      $mod_dir          = "${httpd_dir}/conf.d"
-      $conf_dir         = "${httpd_dir}/conf.d"
-    }
-    default: {
-      fail("osfamily ${::osfamily} is not supported")
-    }
   }
 }
