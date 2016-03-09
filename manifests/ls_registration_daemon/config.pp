@@ -6,7 +6,7 @@ class perfsonar::ls_registration_daemon::config(
 ) inherits perfsonar::params {
   $tn = $snotify ? {
     false   => undef,
-    default => Service['ls_registration_daemon'],
+    default => Service['perfsonar-lsregistrationdaemon'],
   }
   file { '/opt/perfsonar_ps/ls_registration_daemon/etc/ls_registration_daemon-logger.conf':
     ensure  => 'file',
