@@ -25,6 +25,7 @@ class perfsonar::service(
     ensure     => $config_daemon_ensure,
     enable     => $config_daemon_enable,
     hasstatus  => false,
+    status     => '/usr/bin/pgrep config_daemon > /dev/null',
     hasrestart => true,
     require    => Package['perfsonar-toolkit'],
   }
