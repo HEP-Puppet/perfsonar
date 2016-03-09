@@ -3,6 +3,12 @@ site_project=<%= @site_project %>
 <% end
 if @admininfo
   @admininfo.keys.sort.each do |k| -%>
+<% if k != 'site_project' -%>
 <%= k %>=<%= @admininfo[k] %>
+<% else -%>
+<% @admininfo[k].each do |p| -%>
+site_project=<%= p %>
+<% end -%>
+<% end -%>
 <% end
 end -%>
