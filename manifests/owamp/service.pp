@@ -5,6 +5,7 @@ class perfsonar::owamp::service(
   service { 'owamp-server':
     ensure     => $ensure,
     enable     => $enable,
+    hasstatus  => false,
     hasrestart => true,
     require    => Package['owamp-server'],
   }
