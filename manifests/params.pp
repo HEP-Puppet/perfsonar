@@ -44,6 +44,8 @@ class perfsonar::params(
   $patchdir                              = '/usr/local/share/perfsonar_patches',
   $patchpackage                          = 'patch',
   $patchpackage_ensure                   = 'present',
+  $psadmin_group                         = 'wheel',
+  $psadmin_user                          = ''
 ) {
   # os specifics
   case $::osfamily {
