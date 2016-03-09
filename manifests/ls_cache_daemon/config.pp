@@ -6,7 +6,7 @@ class perfsonar::ls_cache_daemon::config(
 ) inherits perfsonar::params {
   $tn = $snotify ? {
     false   => undef,
-    default => Service['ls_cache_daemon'],
+    default => Service['perfsonar-lscachedaemon'],
   }
   file { '/opt/perfsonar_ps/ls_cache_daemon/etc/ls_cache_daemon-logger.conf':
     ensure  => 'file',
