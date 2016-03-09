@@ -29,7 +29,7 @@ class perfsonar::service(
     require    => Package['perfsonar-toolkit'],
   }
   # start (no service, only runs at boot)
-  service { 'perfsonar-configure_nic_par':
+  service { 'perfsonar-configure_nic_parameters':
     enable     => $config_nic_params,
     hasstatus  => false,
     hasrestart => false,
