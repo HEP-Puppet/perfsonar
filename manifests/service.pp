@@ -21,26 +21,26 @@ class perfsonar::service(
   $cassandra_enable       = $::perfsonar::params::cassandra_enable,
 ) inherits perfsonar::params {
   # start stop restart
-  service { 'config_daemon':
+  service { 'perfsonar-configdaemon':
     ensure     => $config_daemon_ensure,
     enable     => $config_daemon_enable,
     hasstatus  => false,
     hasrestart => true,
-    require    => Package['perl-perfSONAR_PS-Toolkit'],
+    require    => Package['perfsonar-toolkit'],
   }
   # start (no service, only runs at boot)
-  service { 'configure_nic_parameters':
+  service { 'perfsonar-configure_nic_par':
     enable     => $config_nic_params,
     hasstatus  => false,
     hasrestart => false,
-    require    => Package['perl-perfSONAR_PS-Toolkit'],
+    require    => Package['perfsonar-toolkit'],
   }
   # start stop(nil) restart (no service, only runs at boot)
-  service { 'generate_motd':
+  service { 'perfsonar-generate_motd':
     enable     => $generate_motd_enable,
     hasstatus  => false,
     hasrestart => true,
-    require    => Package['perl-perfSONAR_PS-Toolkit'],
+    require    => Package['perfsonar-toolkit'],
   }
   # start stop status restart condrestart|try-restart(stop start) force-reload|reload(nil)
   service { 'htcacheclean':

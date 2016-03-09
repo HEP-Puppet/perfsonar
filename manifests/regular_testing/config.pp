@@ -21,7 +21,7 @@ class perfsonar::regular_testing::config(
   }
   $tn = $snotify ? {
     false   => undef,
-    default => Service['regular_testing'],
+    default => Service['perfsonar-regulartesting'],
   }
   file { '/opt/perfsonar_ps/regular_testing/etc/regular_testing-logger.conf':
     ensure  => 'file',

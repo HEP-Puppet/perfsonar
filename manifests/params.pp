@@ -68,7 +68,7 @@ class perfsonar::params(
   # packages that are dependencies of packages in this list have been removed from the original list
   # general perfsonar packages
   $install_packages = [
-    'perl-perfSONAR_PS-Toolkit',
+    'perfsonar-toolkit',
     # installed as dependencies, but need them here to get the dependencies in puppet right
     $httpd_package,
     'esmond',
@@ -79,16 +79,16 @@ class perfsonar::params(
     'cassandra20',
     $modssl_package,
 # don't want to install SystemEnvironment because it keeps overwriting my configurations during updates
-#   'perl-perfSONAR_PS-Toolkit-SystemEnvironment',
-#     packages that are installed by perl-perfSONAR_PS-Toolkit-SystemEnvironment:
-#       perl-perfSONAR_PS-Toolkit-ntp
+#   'perfsonar-toolkit-systemenv',
+#     packages that are installed by perfsonar-toolkit-systemenv:
+#       perfsonar-toolkit-ntp
 #         configures ntp server (replaces existing config)
-#       perl-perfSONAR_PS-Toolkit-security
+#       perfsonar-toolkit-security
 #         configures iptables
-#       perl-perfSONAR_PS-Toolkit-service-watcher
+#       perfsonar-toolkit-service-watcher
 #         monitors status of services: mysql, httpd, cassandra, owamp, bwctl, npad, ndt, regular_testing, ls_registration_daemon, ls_cache_daemon, config_daemon
 #         according to /opt/perfsonar_ps/toolkit/lib/perfSONAR_PS/NPToolkit/Services/*.pm, the following services need regular restarts: OWAMP, RegularTesting
-#       perl-perfSONAR_PS-Toolkit-sysctl
+#       perfsonar-toolkit-sysctl
 #         configures /etc/sysctl.conf (appends values)
 # don't want to install gcc and mysql, it's not required
 #   'gcc',
@@ -128,10 +128,10 @@ class perfsonar::params(
     'iperf3', # bwctl packages install iperf and iperf3-devel as dependencies, but not iperf3 ???
   ]
   $ls_registration_daemon_packages = [
-    'perl-perfSONAR_PS-LSRegistrationDaemon',
+    'perfsonar-lsregistrationdaemon',
   ]
   $ls_cache_daemon_packages = [
-    'perl-perfSONAR_PS-LSCacheDaemon',
+    'perfsonar-lscachedaemon',
   ]
   # logrotate
   $logrotate_cf = '/etc/logrotate.d/perfsonar'

@@ -20,7 +20,7 @@ class perfsonar::mesh_config::config(
       File['/etc/sudoers.d/perfsonar_mesh_config'],
     ],
     refreshonly => true,
-    notify      => Service['regular_testing'],
+    notify      => Service['perfsonar-regulartesting'],
   }
   file { '/etc/sudoers.d/perfsonar_mesh_config':
     ensure => 'file',
