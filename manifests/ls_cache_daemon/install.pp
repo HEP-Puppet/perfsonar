@@ -3,6 +3,6 @@ class perfsonar::ls_cache_daemon::install(
 ) inherits perfsonar::params {
   package { $::perfsonar::params::ls_cache_daemon_packages:
     ensure => $ensure,
-    before => File['/opt/perfsonar_ps/ls_cache_daemon/etc/ls_cache_daemon-logger.conf'],
+    before => File['/etc/perfsonar/lscachedaemon-logger.conf'],
   }
 }
