@@ -10,4 +10,5 @@ class perfsonar {
   include 'perfsonar::bwctl'
   include 'perfsonar::ls_registration_daemon'
   include 'perfsonar::ls_cache_daemon'
+  Class['perfsonar::install'] -> Class['perfsonar::config'] -> Class['perfsonar::service']
 }
