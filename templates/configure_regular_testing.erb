@@ -2,7 +2,7 @@
 
 #set esmond env variables
 export ESMOND_ROOT=<%= @esmondroot %>
-export ESMOND_CONF=/etc/esmond/esmond.conf
+export ESMOND_CONF=<%= @esmondconf -%>/esmond.conf
 export DJANGO_SETTINGS_MODULE=esmond.settings
 
 #initialize python
@@ -35,4 +35,4 @@ fi
 if [ -f /opt/perfsonar_ps/PingER/etc/pinger-landmarks.xml -o /opt/perfsonar_ps/perfsonarbuoy_ma/etc/owmesh.conf  ]; then
     /opt/perfsonar_ps/toolkit/scripts/upgrade/upgrade_regular_tests
 fi
-touch /var/lib/perfsonar/regulartesting/.configured.puppet
+touch <%= @libpath -%>/.configured.puppet
