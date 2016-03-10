@@ -25,7 +25,7 @@ class perfsonar::service(
     ensure     => $config_daemon_ensure,
     enable     => $config_daemon_enable,
     hasstatus  => false,
-    status     => '/usr/bin/pgrep config_daemon > /dev/null',
+    pattern    => 'config_daemon',
     hasrestart => true,
     require    => Package['perfsonar-toolkit'],
   }
@@ -104,14 +104,6 @@ class perfsonar::service(
   service { 'rpcbind':
   }
   # start stop restart
-  service { 'simple_ls_bootstrap_client':
-    ensure     => $ls_bs_client_ensure,
-    enable     => $ls_bs_client_enable,
-    hasstatus  => false,
-    hasrestart => true,
-    pattern    => 'SimpleLSBootStrapClientDaemon.pl',
-    require    => Package['perl-perfSONAR_PS-SimpleLS-BootStrap-client'],
-  }
   service { 'cassandra':
     ensure     => $cassandra_ensure,
     enable     => $cassandra_enable,

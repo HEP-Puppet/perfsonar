@@ -7,7 +7,7 @@ class perfsonar::ls_cache_daemon::service(
     ensure     => $ensure,
     enable     => $enable,
     hasstatus  => false,
-    status     => '/usr/bin/pgrep lscachedaemon > /dev/null',
+    pattern    => 'lscachedaemon',
     hasrestart => true,
     require    => Package['perfsonar-lscachedaemon'],
   }

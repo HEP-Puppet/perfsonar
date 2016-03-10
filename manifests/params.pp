@@ -74,7 +74,6 @@ class perfsonar::params(
     # installed as dependencies, but need them here to get the dependencies in puppet right
     $httpd_package,
     'esmond',
-    'perl-perfSONAR_PS-SimpleLS-BootStrap-client',
     'ndt-server',
     'npad',
     'nscd',
