@@ -23,7 +23,7 @@ class perfsonar::regular_testing::config(
     false   => undef,
     default => Service['perfsonar-regulartesting'],
   }
-  file { '/opt/perfsonar_ps/regular_testing/etc/regular_testing-logger.conf':
+  file { '/etc/perfsonar/regulartesting-logger.conf':
     ensure  => 'file',
     owner   => 'perfsonar',
     group   => 'perfsonar',

@@ -12,7 +12,7 @@ class perfsonar::mesh_config::config(
   }
   # needs notty in sudoers
   exec { 'generate mesh configuration':
-    command     => '/usr/bin/sudo -u perfsonar /opt/perfsonar_ps/mesh_config/bin/generate_configuration',
+    command     => '/usr/bin/sudo -u perfsonar /usr/lib/perfsonar/bin/generate_configuration',
     logoutput   => 'on_failure',
     subscribe   => File['/etc/perfsonar/meshconfig-agent.conf'],
     require     => [
