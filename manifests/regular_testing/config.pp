@@ -18,7 +18,7 @@ class perfsonar::regular_testing::config(
   exec { 'run regular testing configuration script':
     command   => '/usr/local/sbin/puppet_perfsonar_configure_regular_testing',
     logoutput => 'on_failure',
-    creates   => '/var/lib/perfsonar/regular_testing/.configured.puppet',
+    creates   => '/var/lib/perfsonar/regulartesting/.configured.puppet',
     require   => File['/usr/local/sbin/puppet_perfsonar_configure_regular_testing'],
   }
   $tn = $snotify ? {
