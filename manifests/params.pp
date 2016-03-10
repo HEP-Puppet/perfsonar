@@ -108,11 +108,11 @@ class perfsonar::params(
   # 'comps-extras' contains images only, do we need it ??
 
   $regular_testing_packages = [
-    'perl-perfSONAR_PS-RegularTesting',
+    'perfsonar-regulartesting',
     #'perl-DBD-MySQL', # required by regular testing ? I've seen related error message in the logs when it's not installed
   ]
   $mesh_config_packages = [
-    'perl-perfSONAR_PS-MeshConfig-Agent',
+    'perfsonar-meshconfig-agent',
   ]
   # we should split client and server at some point
   $owamp_packages = [

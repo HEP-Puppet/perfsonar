@@ -11,7 +11,7 @@ class perfsonar::regular_testing::config(
     group   => 'root',
     mode    => '0750',
     content => template("${module_name}/configure_regular_testing.erb"),
-    require => Package['perl-perfSONAR_PS-RegularTesting'],
+    require => Package['perfsonar-regulartesting'],
   }
   exec { 'run regular testing configuration script':
     command   => '/usr/local/sbin/puppet_perfsonar_configure_regular_testing',
