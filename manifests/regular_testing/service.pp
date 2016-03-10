@@ -8,7 +8,7 @@ class perfsonar::regular_testing::service(
     hasrestart => true,
     pattern    => 'perfSONAR_PS Regular Testing',
     require    => [
-      Package['perl-perfSONAR_PS-RegularTesting'],
+      Package['perfsonar-regulartesting'],
       Exec['run regular testing configuration script'],
     ],
   }
