@@ -14,7 +14,7 @@ class perfsonar::config(
     # we need the onlyif because the above command produces an error if the regex can't find any values
     onlyif  => 'match readahead/*[label()!=\'#comment\'][.=~regexp(\'"?yes"?\')] size > 0',
   }
-  file { '/opt/perfsonar_ps/toolkit/etc/administrative_info':
+  file { '/etc/perfsonar/toolkit/administrative_info':
     ensure  => 'present',
     owner   => 'root',
     group   => 'root',
