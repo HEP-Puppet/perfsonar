@@ -2,7 +2,7 @@ class perfsonar::mesh_config::config(
   $agentconfig = $::perfsonar::params::mesh_config_agent,
 ) inherits perfsonar::params {
   $agent_options = merge($perfsonar::params::agentconfig, $agentconfig)
-  file { '/opt/perfsonar_ps/mesh_config/etc/agent_configuration.conf':
+  file { '/etc/perfsonar/meshconfig-agent.conf':
     ensure  => 'present',
     owner   => 'perfsonar',
     group   => 'perfsonar',
@@ -14,7 +14,7 @@ class perfsonar::mesh_config::config(
   exec { 'generate mesh configuration':
     command     => '/usr/bin/sudo -u perfsonar /opt/perfsonar_ps/mesh_config/bin/generate_configuration',
     logoutput   => 'on_failure',
-    subscribe   => File['/opt/perfsonar_ps/mesh_config/etc/agent_configuration.conf'],
+    subscribe   => File['/etc/perfsonar/meshconfig-agent.conf'],
     require     => [
       Exec['run regular testing configuration script'],
       File['/etc/sudoers.d/perfsonar_mesh_config'],

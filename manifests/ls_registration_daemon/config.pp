@@ -8,7 +8,7 @@ class perfsonar::ls_registration_daemon::config(
     false   => undef,
     default => Service['perfsonar-lsregistrationdaemon'],
   }
-  file { '/opt/perfsonar_ps/ls_registration_daemon/etc/ls_registration_daemon-logger.conf':
+  file { '/etc/perfsonar/lsregistrationdaemon-logger.conf':
     ensure  => 'file',
     owner   => 'perfsonar',
     group   => 'perfsonar',
