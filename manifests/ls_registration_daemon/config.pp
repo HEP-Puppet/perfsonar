@@ -21,7 +21,8 @@ class perfsonar::ls_registration_daemon::config(
   # TODO: use Augeas to write this config instead of a cat
   exec { 'append_info':
     command => '/bin/cat /etc/perfsonar/toolkit/administrative_info >> /etc/perfsonar/lsregistrationdaemon.conf',
-    unless  => '/bin/grep site_project /etc/perfsonar/lsregistrationdaemon.conf > /dev/null',
+    unless  => '/bin/grep ^site_project /etc/perfsonar/lsregistrationdaemon.conf > /dev/null',
     require => File['/etc/perfsonar/toolkit/administrative_info'],
+    notify  => Service['perfsonar-lsregistrationdaemon']
   }
 }
