@@ -12,19 +12,21 @@ class perfsonar::patches(
     $patchpackage_require = undef
   }
   case $perfsonar_version {
-    /^3\.5\.0/: {
+    /^3\.5\.1/: {
       $patches = {
         '01_perfsonar_webservice_auth.patch.3.5.0' => {
-          path      => '/opt/perfsonar_ps/toolkit/lib/perfSONAR_PS/NPToolkit/WebService',
+          path      => '/usr/lib/perfsonar/lib/perfSONAR_PS/NPToolkit/WebService',
           strip     => 1,
-         # file itself is part of perfsonar-toolkit-library
-         # which is installed as a dependency of perfsonar-toolkit
-         # therefore we use the latter as a dependency for the patch
+          # file itself is part of perfsonar-toolkit-library
+          # which is installed as a dependency of perfsonar-toolkit
+          # therefore we use the latter as a dependency for the patch
+          # need to remove perfsonar-toolkit due to dependency issues in 3.5.1,
+          # which means the dependency needs updating (to libperfsonar-toolkit-perl)
           deps      => Package['perfsonar-toolkit'],
           checkfile => 'Auth.pm', # relative to path
         },
         '02_perfsonar_webservice_pageauth.patch.3.5.0' => {
-          path      => '/opt/perfsonar_ps/toolkit/web-ng/root',
+          path      => '/usr/lib/perfsonar/web-ng/root',
           strip     => 1,
           deps      => Package['perfsonar-toolkit'],
           checkfile => 'index.cgi', # relative to path
