@@ -2,6 +2,8 @@ class perfsonar::params(
   $regular_testing_install_ensure        = 'present',
   $regular_testing_ensure                = 'stopped',
   $regular_testing_enable                = false,
+  $regular_testing_config                = '/etc/perfsonar/regulartesting.conf',
+  $regular_testing_libpath               = '/var/lib/perfsonar/regulartesting',
   $regular_testing_loglvl                = 'INFO',
   $regular_testing_logger                = 'Log::Dispatch::FileRotate',
   $regular_testing_logfile               = '/var/log/perfsonar/regular_testing.log',
@@ -21,6 +23,8 @@ class perfsonar::params(
   $esmond_dbuser                         = 'esmond',
   $esmond_dbpass                         = 'jqIqSIiuzwI0FMUu',
   $esmond_use_db_module                  = true,
+  $esmond_root                           = '/usr/lib/esmond',
+  $esmond_conf_path                      = '/etc/esmond',
   $ls_registration_daemon_install_ensure = 'present',
   $ls_registration_daemon_ensure         = 'running',
   $ls_registration_daemon_enable         = true,
@@ -44,6 +48,8 @@ class perfsonar::params(
   $patchdir                              = '/usr/local/share/perfsonar_patches',
   $patchpackage                          = 'patch',
   $patchpackage_ensure                   = 'present',
+  $psadmin_group                         = 'wheel',
+  $psadmin_user                          = ''
 ) {
   # os specifics
   case $::osfamily {
@@ -66,27 +72,26 @@ class perfsonar::params(
   # packages that are dependencies of packages in this list have been removed from the original list
   # general perfsonar packages
   $install_packages = [
-    'perl-perfSONAR_PS-Toolkit',
+    'perfsonar-toolkit',
     # installed as dependencies, but need them here to get the dependencies in puppet right
     $httpd_package,
     'esmond',
-    'perl-perfSONAR_PS-SimpleLS-BootStrap-client',
     'ndt-server',
     'npad',
     'nscd',
     'cassandra20',
     $modssl_package,
 # don't want to install SystemEnvironment because it keeps overwriting my configurations during updates
-#   'perl-perfSONAR_PS-Toolkit-SystemEnvironment',
-#     packages that are installed by perl-perfSONAR_PS-Toolkit-SystemEnvironment:
-#       perl-perfSONAR_PS-Toolkit-ntp
+#   'perfsonar-toolkit-systemenv',
+#     packages that are installed by perfsonar-toolkit-systemenv:
+#       perfsonar-toolkit-ntp
 #         configures ntp server (replaces existing config)
-#       perl-perfSONAR_PS-Toolkit-security
+#       perfsonar-toolkit-security
 #         configures iptables
-#       perl-perfSONAR_PS-Toolkit-service-watcher
+#       perfsonar-toolkit-service-watcher
 #         monitors status of services: mysql, httpd, cassandra, owamp, bwctl, npad, ndt, regular_testing, ls_registration_daemon, ls_cache_daemon, config_daemon
 #         according to /opt/perfsonar_ps/toolkit/lib/perfSONAR_PS/NPToolkit/Services/*.pm, the following services need regular restarts: OWAMP, RegularTesting
-#       perl-perfSONAR_PS-Toolkit-sysctl
+#       perfsonar-toolkit-sysctl
 #         configures /etc/sysctl.conf (appends values)
 # don't want to install gcc and mysql, it's not required
 #   'gcc',
@@ -106,11 +111,11 @@ class perfsonar::params(
   # 'comps-extras' contains images only, do we need it ??
 
   $regular_testing_packages = [
-    'perl-perfSONAR_PS-RegularTesting',
+    'perfsonar-regulartesting',
     #'perl-DBD-MySQL', # required by regular testing ? I've seen related error message in the logs when it's not installed
   ]
   $mesh_config_packages = [
-    'perl-perfSONAR_PS-MeshConfig-Agent',
+    'perfsonar-meshconfig-agent',
   ]
   # we should split client and server at some point
   $owamp_packages = [
@@ -126,10 +131,10 @@ class perfsonar::params(
     'iperf3', # bwctl packages install iperf and iperf3-devel as dependencies, but not iperf3 ???
   ]
   $ls_registration_daemon_packages = [
-    'perl-perfSONAR_PS-LSRegistrationDaemon',
+    'perfsonar-lsregistrationdaemon',
   ]
   $ls_cache_daemon_packages = [
-    'perl-perfSONAR_PS-LSCacheDaemon',
+    'perfsonar-lscachedaemon',
   ]
   # logrotate
   $logrotate_cf = '/etc/logrotate.d/perfsonar'

@@ -14,13 +14,13 @@ class perfsonar::config(
     # we need the onlyif because the above command produces an error if the regex can't find any values
     onlyif  => 'match readahead/*[label()!=\'#comment\'][.=~regexp(\'"?yes"?\')] size > 0',
   }
-  file { '/opt/perfsonar_ps/toolkit/etc/administrative_info':
+  file { '/etc/perfsonar/toolkit/administrative_info':
     ensure  => 'present',
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
     content => template("${module_name}/administrative_info.erb"),
-    require => Package['perl-perfSONAR_PS-Toolkit']
+    require => Package['perfsonar-toolkit']
   }
   # update owner / permissions on directories
   file { '/var/lib/perfsonar/db_backups':
@@ -28,14 +28,14 @@ class perfsonar::config(
     owner  => 'perfsonar',
     group  => 'perfsonar',
     mode   => '0755',
-    require => Package['perl-perfSONAR_PS-Toolkit']
+    require => Package['perfsonar-toolkit']
   }
   file { '/var/lib/perfsonar/log_view':
     ensure => 'directory',
     owner  => 'perfsonar',
     group  => 'perfsonar',
     mode   => '0755',
-    require => Package['perl-perfSONAR_PS-Toolkit']
+    require => Package['perfsonar-toolkit']
   }
 }
 

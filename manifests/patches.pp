@@ -17,16 +17,16 @@ class perfsonar::patches(
         '01_perfsonar_webservice_auth.patch.3.5.0' => {
           path      => '/opt/perfsonar_ps/toolkit/lib/perfSONAR_PS/NPToolkit/WebService',
           strip     => 1,
-         # file itself is part of perl-perfSONAR_PS-Toolkit-Library
-         # which is installed as a dependency of perl-perfSONAR_PS-Toolkit
+         # file itself is part of perfsonar-toolkit-library
+         # which is installed as a dependency of perfsonar-toolkit
          # therefore we use the latter as a dependency for the patch
-          deps      => Package['perl-perfSONAR_PS-Toolkit'],
+          deps      => Package['perfsonar-toolkit'],
           checkfile => 'Auth.pm', # relative to path
         },
         '02_perfsonar_webservice_pageauth.patch.3.5.0' => {
           path      => '/opt/perfsonar_ps/toolkit/web-ng/root',
           strip     => 1,
-          deps      => Package['perl-perfSONAR_PS-Toolkit'],
+          deps      => Package['perfsonar-toolkit'],
           checkfile => 'index.cgi', # relative to path
         }
       }

@@ -3,11 +3,12 @@ class perfsonar::ls_cache_daemon::service(
   $enable = $::perfsonar::params::ls_cache_daemon_enable,
 ) inherits perfsonar::params {
   # start stop restart
-  service { 'ls_cache_daemon':
+  service { 'perfsonar-lscachedaemon':
     ensure     => $ensure,
     enable     => $enable,
     hasstatus  => false,
+    pattern    => 'lscachedaemon',
     hasrestart => true,
-    require    => Package['perl-perfSONAR_PS-LSCacheDaemon'],
+    require    => Package['perfsonar-lscachedaemon'],
   }
 }

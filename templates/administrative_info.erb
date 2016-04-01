@@ -1,8 +1,22 @@
 <% unless @admininfo && @admininfo.has_key?('site_project') -%>
-site_project=<%= @site_project %>
+site_project   <%= @site_project %>
 <% end
 if @admininfo
-  @admininfo.keys.sort.each do |k| -%>
-<%= k %>=<%= @admininfo[k] %>
+  @admininfo.each do |k, v| -%>
+<% if k != 'site_project' and k != 'administrator'-%>
+<%= k %>   <%= v %>
+<% elsif k == 'site_project' -%>
+<% v.each do |p| -%>
+site_project   <%= p %>
+<% end -%>
+<% else -%>
+<administrator>
+<% v.each do |p| -%>
+<% p.each do |kel, vel| -%>
+   <%= kel %>   <%= vel %>
+<% end -%>
+<% end -%>
+</administrator>
+<% end -%>
 <% end
 end -%>

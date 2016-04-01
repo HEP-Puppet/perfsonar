@@ -8,9 +8,9 @@ class perfsonar::cleanup(
     }
     if ! $::perfsonar_systemenvironment {
       # don't remove the following packages if
-      # perl-perfSONAR_PS-Toolkit-SystemEnvironment is installed
+      # perfsonar-toolkit-systemenv is installed
       # they are dependencies and can't be removed without removing
-      # perl-perfSONAR_PS-Toolkit-SystemEnvironment as well
+      # perfsonar-toolkit-systemenv as well
       package { [ 'php-common', 'perl-DBD-MySQL', ]:
         ensure => 'absent',
       }

@@ -21,26 +21,27 @@ class perfsonar::service(
   $cassandra_enable       = $::perfsonar::params::cassandra_enable,
 ) inherits perfsonar::params {
   # start stop restart
-  service { 'config_daemon':
+  service { 'perfsonar-configdaemon':
     ensure     => $config_daemon_ensure,
     enable     => $config_daemon_enable,
     hasstatus  => false,
+    pattern    => 'config_daemon',
     hasrestart => true,
-    require    => Package['perl-perfSONAR_PS-Toolkit'],
+    require    => Package['perfsonar-toolkit'],
   }
   # start (no service, only runs at boot)
-  service { 'configure_nic_parameters':
+  service { 'perfsonar-configure_nic_parameters':
     enable     => $config_nic_params,
     hasstatus  => false,
     hasrestart => false,
-    require    => Package['perl-perfSONAR_PS-Toolkit'],
+    require    => Package['perfsonar-toolkit'],
   }
   # start stop(nil) restart (no service, only runs at boot)
-  service { 'generate_motd':
+  service { 'perfsonar-generate_motd':
     enable     => $generate_motd_enable,
     hasstatus  => false,
     hasrestart => true,
-    require    => Package['perl-perfSONAR_PS-Toolkit'],
+    require    => Package['perfsonar-toolkit'],
   }
   # start stop status restart condrestart|try-restart(stop start) force-reload|reload(nil)
   service { 'htcacheclean':
@@ -103,14 +104,6 @@ class perfsonar::service(
   service { 'rpcbind':
   }
   # start stop restart
-  service { 'simple_ls_bootstrap_client':
-    ensure     => $ls_bs_client_ensure,
-    enable     => $ls_bs_client_enable,
-    hasstatus  => false,
-    hasrestart => true,
-    pattern    => 'SimpleLSBootStrapClientDaemon.pl',
-    require    => Package['perl-perfSONAR_PS-SimpleLS-BootStrap-client'],
-  }
   service { 'cassandra':
     ensure     => $cassandra_ensure,
     enable     => $cassandra_enable,

@@ -39,7 +39,7 @@ class perfsonar::esmond (
     }
   }
 
-  file { '/opt/esmond/esmond.conf':
+  file { '/etc/esmond/esmond.conf':
     ensure  => 'file',
     owner   => 'root',
     group   => 'root',
@@ -54,7 +54,7 @@ class perfsonar::esmond (
     group   => 'root',
     mode    => '0750',
     content => template("${module_name}/configure_esmond.erb"),
-    require => File['/opt/esmond/esmond.conf'],
+    require => File['/etc/esmond/esmond.conf'],
   }
   exec { 'run esmond configuration script':
     command   => '/usr/local/sbin/puppet_perfsonar_configure_esmond',
@@ -62,7 +62,7 @@ class perfsonar::esmond (
     creates   => '/var/lib/esmond/.configured.puppet',
     require   => [
       File['/usr/local/sbin/puppet_perfsonar_configure_esmond'],
-      File['/opt/esmond/esmond.conf'],
+      File['/etc/esmond/esmond.conf'],
     ],
   }
 }
