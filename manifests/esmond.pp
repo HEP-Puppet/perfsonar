@@ -25,9 +25,7 @@ class perfsonar::esmond (
       order       => '002',
       before      => Exec['run esmond configuration script'],
     }
-  }
-  else
-  {
+  } else {
     # the sudo rule is only required if postgresql is configured by the script
     file { '/etc/sudoers.d/perfsonar_esmond':
       ensure  => 'file',
