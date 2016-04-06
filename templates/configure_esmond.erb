@@ -22,10 +22,9 @@ fi
 sed -i '/^JVM_OPTS="\$JVM_OPTS -Dcom.sun.management.jmx/ s/^/#/' /etc/cassandra/conf/cassandra-env.sh
 
 #set esmond env variables
-#export ESMOND_ROOT=/usr/lib/esmond
-#export ESMOND_CONF=/etc/esmond/esmond.conf
-#export DJANGO_SETTINGS_MODULE=esmond.settings
-. /etc/profile.d/esmond.sh
+export ESMOND_ROOT=<%= @esmondroot %>
+export ESMOND_CONF=<%= @esmondconf -%>/esmond.conf
+export DJANGO_SETTINGS_MODULE=esmond.settings
 
 #initialize python
 cd $ESMOND_ROOT
