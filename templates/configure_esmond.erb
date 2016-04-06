@@ -10,25 +10,25 @@ if [ -z "$(ls -A /var/lib/pgsql/data)" ]; then
     sudo -u postgres psql -c "CREATE USER <%= @dbuser %> WITH PASSWORD '<%= @dbpassword %>'"
     sudo -u postgres psql -c "CREATE DATABASE <%= @dbname %>"
     sudo -u postgres psql -c "GRANT ALL ON DATABASE <%= @dbname %> to <%= @dbuser %>"
-    cp -f /opt/perfsonar_ps/toolkit/etc/default_service_configs/pg_hba.conf /var/lib/pgsql/data/pg_hba.conf
+    cp -f /etc/perfsonar/toolkit/default_service_configs/pg_hba.conf /var/lib/pgsql/data/pg_hba.conf
     /sbin/service postgresql restart
-#   sed -i "s/sql_db_name = .*/sql_db_name = esmond/g" /opt/esmond/esmond.conf
-#   sed -i "s/sql_db_user = .*/sql_db_user = esmond/g" /opt/esmond/esmond.conf
-#   sed -i "s/sql_db_password = .*/sql_db_password = 7hc4m1/g" /opt/esmond/esmond.conf
+#   sed -i "s/sql_db_name = .*/sql_db_name = esmond/g" /etc/esmond/esmond.conf
+#   sed -i "s/sql_db_user = .*/sql_db_user = esmond/g" /etc/esmond/esmond.conf
+#   sed -i "s/sql_db_password = .*/sql_db_password = 7hc4m1/g" /etc/esmond/esmond.conf
 fi
 
 <% end -%>
-#disable JMX in cassandra so will start even if /etc/sysconfig/network HOSTNAME does not resolve
+#disable JMX in cassandra so it will start even if /etc/sysconfig/network HOSTNAME does not resolve
 sed -i '/^JVM_OPTS="\$JVM_OPTS -Dcom.sun.management.jmx/ s/^/#/' /etc/cassandra/conf/cassandra-env.sh
 
 #set esmond env variables
-export ESMOND_ROOT=/opt/esmond
-export ESMOND_CONF=$ESMOND_ROOT/esmond.conf
+export ESMOND_ROOT=<%= @esmondroot %>
+export ESMOND_CONF=<%= @esmondconf -%>/esmond.conf
 export DJANGO_SETTINGS_MODULE=esmond.settings
 
 #initialize python
-cd /opt/esmond
-source /opt/rh/python27/enable
+cd $ESMOND_ROOT
+. /opt/rh/python27/enable
 /opt/rh/python27/root/usr/bin/virtualenv --prompt="(esmond)" .
 . bin/activate
 

@@ -27,6 +27,6 @@ class perfsonar::mesh_config::config(
     owner  => 'root',
     group  => 'root',
     mode   => '0440',
-    content => "Defaults!/opt/perfsonar_ps/mesh_config/bin/generate_configuration !requiretty\n",
+    content => "Defaults!/usr/lib/perfsonar/bin/generate_configuration !requiretty\n",
   }
 }

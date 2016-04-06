@@ -81,7 +81,7 @@ class perfsonar::params(
     'nscd',
     'cassandra20',
     $modssl_package,
-# don't want to install SystemEnvironment because it keeps overwriting my configurations during updates
+# don't want to install perfsonar-toolkit-systemenv because it keeps overwriting my configurations during updates
 #   'perfsonar-toolkit-systemenv',
 #     packages that are installed by perfsonar-toolkit-systemenv:
 #       perfsonar-toolkit-ntp
@@ -93,22 +93,13 @@ class perfsonar::params(
 #         according to /opt/perfsonar_ps/toolkit/lib/perfSONAR_PS/NPToolkit/Services/*.pm, the following services need regular restarts: OWAMP, RegularTesting
 #       perfsonar-toolkit-sysctl
 #         configures /etc/sysctl.conf (appends values)
-# don't want to install gcc and mysql, it's not required
-#   'gcc',
-#   'mysql-devel',
-# is this for the web100 kernel only ??
-#    'kmod-sk98lin',
+# unfortunately, with ps 3.5.1.x the main perfsonar-toolkit depends on perfsonar-toolkit-systemenv
+# perfsonar-toolkit is also not a meta package, it contains necessary files, so it has to be installed
+# the easiest option to avoid the systemenv package is to create dummy rpm with the same name and a higher version number
+
 # are the ones below still required ?
      'device-mapper-multipath',
-#    'php-gd',
-#    'php-xml',
-#    'syslinux',
-#    'xplot-tcptrace',
   ]
-  # other packages in the original kickstart, but left out
-  # 'perl-DBD-mysql' doesn't exist, it's called perl-DBD-MySQL
-  # 'xkeyboard-config' do we need it, we don't run X ??
-  # 'comps-extras' contains images only, do we need it ??
 
   $regular_testing_packages = [
     'perfsonar-regulartesting',

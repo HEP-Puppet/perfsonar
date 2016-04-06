@@ -3,6 +3,8 @@ class perfsonar::esmond (
   $dbname        = $::perfsonar::params::esmond_dbname,
   $dbuser        = $::perfsonar::params::esmond_dbuser,
   $dbpassword    = $::perfsonar::params::esmond_dbpass,
+  $esmondroot    = $::perfsonar::params::esmond_root,
+  $esmondconf    = $::perfsonar::params::esmond_conf_path,
 ) inherits perfsonar::params {
   if $use_db_module {
     class { 'postgresql::server': }
@@ -25,9 +27,7 @@ class perfsonar::esmond (
       order       => '002',
       before      => Exec['run esmond configuration script'],
     }
-  }
-  else
-  {
+  } else {
     # the sudo rule is only required if postgresql is configured by the script
     file { '/etc/sudoers.d/perfsonar_esmond':
       ensure  => 'file',
